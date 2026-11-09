@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="TryMoe 开源 AI API 计价核心演示：用合成报价复算输入输出、长上下文分档、优惠和峰谷时段。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>TryMoe Pricing · 可复算的 AI API 费用</title>
+  <link rel="stylesheet" href="./style.css"><script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="https://try.moe/">萌测 <span>TryMoe / Pricing</span></a><a class="source" href="https://github.com/trymoe/pricing">查看源码 ↗</a></header>
+  <main>
+    <section class="intro"><p class="eyebrow">OPEN SOURCE · MIT · ZERO RUNTIME DEPENDENCIES</p><h1>每一笔 Token 费用，<br><span>都能自己复算。</span></h1><p>一个独立、可验证的 AI API 计价核心。调整用量与时间，看看分档、优惠和峰谷规则如何影响估算。</p><div class="notice"><strong>演示价格全部为合成数据。</strong>不代表任何模型或供应商报价。数值只在当前浏览器计算，不发送、不保存。</div></section>
+    <div class="layout">
+      <section class="panel" aria-labelledby="inputs-title"><div class="section-heading"><span class="step">01</span><h2 id="inputs-title">设置一次请求</h2></div>
+        <form id="calculator" novalidate>
+          <label for="scenario">计价规则</label><select id="scenario"><option value="base">基础计价 · USD 2 / 8</option><option value="tier">长上下文 · ≥ 200k 整次请求升档</option><option value="promotion">限时优惠 · 6 月 1 日当天半价</option><option value="time">峰谷时段 · 上海 09:00–17:00</option></select>
+          <div class="pair"><div><label for="input">输入 Token</label><input id="input" type="number" min="0" max="1000000000" step="1" value="250000" inputmode="numeric"></div><div><label for="output">输出 Token</label><input id="output" type="number" min="0" max="1000000000" step="1" value="10000" inputmode="numeric"></div></div>
+          <label for="time">计算时刻（固定 UTC）</label><input id="time" type="datetime-local" step="1" value="2026-06-01T04:00:00"><p class="hint">日期输入按 UTC 解释，不随你的浏览器时区变化。</p>
+          <div class="pair"><div><label for="currency">显示币种</label><select id="currency"><option value="USD">USD · 美元</option><option value="CNY">CNY · 人民币</option></select></div><div><label for="fx">1 USD = CNY</label><input id="fx" type="number" min="0.000001" max="1000000" step="any" value="7"><p class="hint">合成汇率，非实时数据</p></div></div>
+          <button type="button" id="reset-demo">重置演示</button>
+        </form>
+      </section>
+      <section class="panel result" aria-labelledby="results-title"><div class="section-heading"><span class="step">02</span><h2 id="results-title">逐项核算</h2></div><div id="error" class="error" role="alert" hidden></div><div id="result" aria-live="polite" aria-atomic="true"><p class="eyebrow">估算总费用 · 非最终账单</p><p class="total"><span id="symbol">$</span><output id="total">…</output><small id="unit">USD</small></p><p id="selected" class="badge"></p><dl><div><dt>输入费用</dt><dd id="input-cost"></dd></div><div><dt>输出费用</dt><dd id="output-cost"></dd></div><div><dt>生效单价 / 百万 Token</dt><dd id="rates"></dd></div><div><dt>优惠状态</dt><dd id="promo-status"></dd></div></dl><p id="formula" class="formula"></p></div><p class="hint">显示保留 6 位小数；完整未舍入结果见下方 JSON。浮点估算不可直接用于账单结算。</p></section>
+    </div>
+    <section class="panel inspect"><div class="section-heading"><span class="step">03</span><h2>查看完整输入与输出</h2></div><p>源码和演示使用同一个核心，不另写一套公式。</p><div class="pair"><div><h3>输入报价（合成）</h3><pre id="quote"></pre></div><div><h3>未舍入计算结果</h3><pre id="json"></pre></div></div></section>
+    <section class="limits"><h2>估算有边界，来源很重要。</h2><p>当前核心不覆盖缓存、工具调用、批处理、音视频、税费、充值和订阅。长上下文按整次请求分档，时段使用报价自己的时区。请以服务商完整计费规则和实际账单为准。</p><a class="cta" href="https://try.moe/">到 TryMoe 查看有来源的最新报价 ↗</a></section>
+  </main><footer>TryMoe Pricing · MIT · 示例不代表任何供应商推荐或承诺。<a href="https://github.com/trymoe/pricing">源码与测试</a></footer>
+</body>
+</html>

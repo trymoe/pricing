@@ -1,0 +1,32 @@
+import { execFileSync } from 'node:child_process';
+import { mkdtemp, readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+const scratch = await mkdtemp(join(tmpdir(), 'trymoe-package-'));
+const run = (args, cwd = process.cwd()) => execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', args, { cwd, env: { ...process.env, npm_config_cache: join(scratch, 'npm-cache') }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] });
+process.stdout.write(run(['run', 'build']));
+process.stdout.write(run(['run', 'scan']));
+const pack = JSON.parse(run(['pack', '--ignore-scripts', '--json', '--pack-destination', scratch]))[0];
+const expected = ['LICENSE','README.md','README.zh-CN.md','dist/index.d.ts','dist/index.js','docs/semantics.md','docs/third-party-notices.md','package.json','src/index.ts'].sort();
+if (JSON.stringify(pack.files.map(file => file.path).sort()) !== JSON.stringify(expected)) throw new Error('Unexpected files in package archive');
+const consumer = join(scratch, 'consumer'); await mkdir(consumer);
+await writeFile(join(consumer, 'package.json'), '{"name":"synthetic-consumer","private":true,"type":"module"}\n');
+run(['install', join(scratch, pack.filename), '--ignore-scripts', '--no-audit', '--no-fund'], consumer);
+const installed = JSON.parse(await readFile(join(consumer, 'node_modules/trymoe-pricing/package.json')));
+if (Object.keys(installed.dependencies ?? {}).length) throw new Error('Unexpected runtime dependencies');
+const smoke = `import assert from 'node:assert/strict';
+import { estimateCost, convertCurrency } from 'trymoe-pricing';
+const result = estimateCost({input:2,output:8,currency:'USD'}, {inputTokens:1000000,outputTokens:100000}, 0);
+assert.equal(result.totalCost, 2.8);
+assert.ok(Math.abs(convertCurrency(result.totalCost,'USD','CNY',7)-19.6)<1e-10);
+console.log('Packed ESM consumer passed');`;
+await writeFile(join(consumer, 'smoke.mjs'), smoke);
+process.stdout.write(execFileSync(process.execPath, ['smoke.mjs'], { cwd: consumer, encoding: 'utf8' }));
+const clean = join(scratch, 'source'); await mkdir(clean);
+for (const file of JSON.parse(await readFile('scripts/release-files.json', 'utf8'))) {
+  await mkdir(dirname(join(clean, file)), { recursive: true }); await copyFile(file, join(clean, file));
+}
+process.stdout.write(run(['ci', '--ignore-scripts', '--no-audit', '--no-fund', '--cache', join(scratch, 'empty-npm-cache')], clean));
+process.stdout.write(run(['run', 'check'], clean));
+process.stdout.write(run(['run', 'demo:build'], clean));
+console.log(`Clean source install, checks, demo build and packed consumer passed. Archive: ${join(scratch, pack.filename)}`);

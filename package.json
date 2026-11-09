@@ -1,0 +1,55 @@
+{
+  "name": "trymoe-pricing",
+  "version": "0.1.0",
+  "description": "Pure TypeScript AI API cost estimates with promotions, whole-request context tiers and time-zone rates.",
+  "type": "module",
+  "license": "MIT",
+  "author": "TryMoe contributors",
+  "homepage": "https://try.moe/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trymoe/pricing.git"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "token",
+    "pricing",
+    "cost",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "src/index.ts",
+    "LICENSE",
+    "README.md",
+    "README.zh-CN.md",
+    "docs/semantics.md",
+    "docs/third-party-notices.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p test/tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "check": "npm run typecheck && npm test && npm run scan",
+    "scan": "node scripts/check-release.mjs",
+    "demo:build": "npm run build && node scripts/build-demo.mjs",
+    "demo": "npm run demo:build && node scripts/serve-demo.mjs",
+    "prepack": "npm run build && npm run scan",
+    "test:package": "node scripts/test-package.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}
