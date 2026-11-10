@@ -1,5 +1,7 @@
 # TryMoe Pricing
 
+[![npm 版本](https://img.shields.io/npm/v/trymoe-pricing?logo=npm)](https://www.npmjs.com/package/trymoe-pricing)
+
 一个用于 **AI API Token 费用估算**的独立 TypeScript 核心，从 [萌测 TryMoe](https://try.moe/) 的纯计算逻辑抽取并增加严格校验。运行时零依赖，不访问网络。
 
 [English](README.md) · [计价口径](docs/semantics.md) · [MIT 许可](LICENSE)
@@ -8,9 +10,17 @@
 
 **这是估算器，不是账单结算器。** 示例与演示全部使用合成价格，未包含真实供应商报价库、生产数据、后台、监控或用户资料。最新有来源报价请到 [TryMoe](https://try.moe/) 核对。
 
-## 运行
+## 安装
 
-需要 Node.js 22+（完整 ICU 时区支持）、npm 和 Git。
+```sh
+npm install trymoe-pricing
+```
+
+需要 Node.js 22 或更高版本（含完整 ICU 时区支持）。安装包以 ES 模块发布，并包含 TypeScript 类型声明。
+
+## 从源码运行
+
+从源码运行还需要 Git。
 
 ```sh
 git clone https://github.com/trymoe/pricing.git trymoe-pricing
@@ -23,12 +33,10 @@ npm run demo
 
 打开 `http://127.0.0.1:4178`。演示直接在浏览器计算，不发送你填写的数值。`npm run demo:build` 会生成可部署到静态主机的 `site/` 目录。
 
-`npm pack` 可生成本地安装包。此文档不表示已经发布到 npm 注册表。
-
 ## 示例
 
 ```ts
-import { estimateCost } from './dist/index.js';
+import { estimateCost } from 'trymoe-pricing';
 
 const result = estimateCost(
   { currency: 'USD', input: 2, output: 8, unit: 1_000_000 },
@@ -37,6 +45,8 @@ const result = estimateCost(
 );
 // 输入费用 2，输出费用 0.8，总计 2.8 USD，均为未舍入估算值。
 ```
+
+从源码目录运行示例时，先执行 `npm run build`，再从 `./dist/index.js` 导入。
 
 `effectivePrice` 返回选中单价、常规单价、优惠状态和规则下标；`validatePrice` 可校验外部 JSON，错误抛出带字段路径的 `RangeError`。完整 API 见 TypeScript 声明和[计价口径](docs/semantics.md)。
 

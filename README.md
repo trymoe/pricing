@@ -1,5 +1,7 @@
 # TryMoe Pricing
 
+[![npm version](https://img.shields.io/npm/v/trymoe-pricing?logo=npm)](https://www.npmjs.com/package/trymoe-pricing)
+
 A small, dependency-free runtime for **AI API token cost estimates**. Extracted from the pure calculation logic in [TryMoe](https://try.moe/), then given a standalone API and strict input validation.
 
 [简体中文](README.zh-CN.md) · [Exact semantics](docs/semantics.md) · [License](LICENSE)
@@ -13,9 +15,17 @@ A small, dependency-free runtime for **AI API token cost estimates**. Extracted 
 
 **This is an estimator, not an invoice engine.** All examples and demo rates are invented. This package contains no live vendor price catalog, production data, backend, monitoring or user information. For current sourced quotes, use [TryMoe](https://try.moe/).
 
-## Build and try
+## Install
 
-Requires Node.js 22 or newer with full ICU time-zone support, npm, and Git.
+```sh
+npm install trymoe-pricing
+```
+
+Requires Node.js 22 or newer with full ICU time-zone support. The package exports ES modules and includes TypeScript declarations.
+
+## Build and try from source
+
+To work from a source checkout, you'll also need Git.
 
 ```sh
 git clone https://github.com/trymoe/pricing.git trymoe-pricing
@@ -28,12 +38,10 @@ npm run demo
 
 Open `http://127.0.0.1:4178`. The demo runs locally and calculates in your browser. `npm run demo:build` produces a self-contained static site in `site/` for any static host.
 
-The source repository can be built and packaged with `npm pack`. This README does not assume a release has been published to the npm registry.
-
 ## Example
 
 ```ts
-import { estimateCost, convertCurrency } from './dist/index.js';
+import { estimateCost, convertCurrency } from 'trymoe-pricing';
 
 const quote = {
   currency: 'USD' as const,
@@ -57,7 +65,7 @@ const cny = convertCurrency(result.totalCost, 'USD', 'CNY', 7);
 
 Use `effectivePrice(quote, inputTokens, now)` to inspect the selected rate, regular rate, promotion state and rule index without computing a total. Use `validatePrice(unknownValue)` for parsed JSON; invalid values throw `RangeError` with a field path.
 
-After installing a locally packed tarball, import the same API from `'trymoe-pricing'`. Only ESM is exported; there is no CommonJS build.
+When running this example from a source checkout, import from `./dist/index.js` after `npm run build`.
 
 ## Rules in brief
 
